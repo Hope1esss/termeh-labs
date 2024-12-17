@@ -41,13 +41,13 @@ vy_vals = vy_func(time_points)
 ax_vals = ax_func(time_points)
 ay_vals = ay_func(time_points)
 
-# Set up plot
-fig, ax = plt.subplots()
+# Set up plot for the animated trajectory
+fig, ax = plt.subplots(figsize=(8, 6))
 ax.axis('equal')
 ax.set_xlim([np.min(x_vals) - 0.8, np.max(x_vals) + 0.8])
 ax.set_ylim([np.min(y_vals) - 0.8, np.max(y_vals) + 0.8])
 
-# Initialize plot elements
+# Initialize plot elements for the animated trajectory
 point, = ax.plot([], [], 'go', markersize=10)
 ax.plot(x_vals, y_vals, 'r-', lw=1)
 velocity_line, = ax.plot([], [], 'b-', lw=1)
@@ -58,6 +58,36 @@ radius_vector_line, = ax.plot([], [], 'y-', lw=1)
 radius_vector_arrow_head, = ax.plot([], [], 'y-', lw=1)
 curvature_radius_line, = ax.plot([], [], 'm--', lw=1)
 curvature_radius_arrow_head, = ax.plot([], [], 'm--', lw=1)
+
+# Set up separate figure for 3 graphs
+fig2, (ax3, ax4, ax5) = plt.subplots(3, 1, figsize=(10, 12))
+
+# Plot functions of time for position, velocity, and acceleration
+x_line, = ax3.plot([], [], label="x(t)", color='r')
+y_line, = ax3.plot([], [], label="y(t)", color='b')
+vx_line, = ax4.plot([], [], label="vx(t)", color='g')
+vy_line, = ax4.plot([], [], label="vy(t)", color='purple')
+ax_line, = ax5.plot([], [], label="ax(t)", color='orange')
+ay_line, = ax5.plot([], [], label="ay(t)", color='pink')
+
+# Labels and legends
+ax3.set_ylabel('Position')
+ax4.set_ylabel('Velocity')
+ax5.set_ylabel('Acceleration')
+
+ax5.set_xlabel('Time (t)')
+
+ax3.legend()
+ax4.legend()
+ax5.legend()
+
+# Set up appropriate scaling for each plot
+ax3.set_xlim([0, 10])
+ax3.set_ylim([np.min(x_vals) - 0.8, np.max(x_vals) + 0.8])
+ax4.set_xlim([0, 10])
+ax4.set_ylim([np.min(vx_vals) - 0.8, np.max(vx_vals) + 0.8])
+ax5.set_xlim([0, 10])
+ax5.set_ylim([np.min(ax_vals) - 0.8, np.max(ax_vals) + 0.8])
 
 def rotate_vectors(x_arr, y_arr, angle):
     x_new = x_arr * np.cos(angle) - y_arr * np.sin(angle)
@@ -121,14 +151,24 @@ def update(frame):
     CArrowX, CArrowY = rotate_vectors(arrow_x, arrow_y, curvature_angle)
     curvature_radius_arrow_head.set_data(CArrowX + center_x, CArrowY + center_y)
 
+    # Update time-dependent graphs
+    x_line.set_data(time_points[:frame], x_vals[:frame])
+    y_line.set_data(time_points[:frame], y_vals[:frame])
+    vx_line.set_data(time_points[:frame], vx_vals[:frame])
+    vy_line.set_data(time_points[:frame], vy_vals[:frame])
+    ax_line.set_data(time_points[:frame], ax_vals[:frame])
+    ay_line.set_data(time_points[:frame], ay_vals[:frame])
+
     return (point,
             velocity_line, velocity_arrow_head,
             acceleration_line, acceleration_arrow_head,
             radius_vector_line, radius_vector_arrow_head,
-            curvature_radius_line, curvature_radius_arrow_head)
+            curvature_radius_line, curvature_radius_arrow_head,
+            x_line, y_line, vx_line, vy_line, ax_line, ay_line)
 
 # Create animation
 ani = animation.FuncAnimation(fig, update, frames=len(time_points), interval=20, blit=True)
 
-# Show the plot with animation
+# Show the plots
+plt.tight_layout()
 plt.show()
