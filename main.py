@@ -4,28 +4,28 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import math
 
-# Define time points and symbolic time variable
+# Определяем временные точки и символическую переменную времени
 time_points = np.linspace(0, 10, 1000)
 radius = 1
 t = sp.symbols('t')
 
-# Parametric equations
+# Параметрические уравнения
 r_expr = 1 - sp.sin(t)
 fi_expr = 2 * t
 
-# Convert to Cartesian coordinates
+# Преобразование в декартовы координаты
 x_expr = radius * r_expr * sp.cos(fi_expr)
 y_expr = radius * r_expr * sp.sin(fi_expr)
 
-# Compute velocity (first derivative)
+# Вычисление скорости (первая производная)
 vx_expr = sp.diff(x_expr, t)
 vy_expr = sp.diff(y_expr, t)
 
-# Compute acceleration (second derivative)
+# Вычисление ускорения (вторая производная)
 ax_expr = sp.diff(vx_expr, t)
 ay_expr = sp.diff(vy_expr, t)
 
-# Convert to numpy functions for numerical evaluation
+# Преобразование в функции numpy для численной оценки
 x_func = sp.lambdify(t, x_expr, 'numpy')
 y_func = sp.lambdify(t, y_expr, 'numpy')
 vx_func = sp.lambdify(t, vx_expr, 'numpy')
@@ -33,7 +33,7 @@ vy_func = sp.lambdify(t, vy_expr, 'numpy')
 ax_func = sp.lambdify(t, ax_expr, 'numpy')
 ay_func = sp.lambdify(t, ay_expr, 'numpy')
 
-# Evaluate functions
+# Оценка функций
 x_vals = x_func(time_points)
 y_vals = y_func(time_points)
 vx_vals = vx_func(time_points)
@@ -41,13 +41,13 @@ vy_vals = vy_func(time_points)
 ax_vals = ax_func(time_points)
 ay_vals = ay_func(time_points)
 
-# Set up plot for the animated trajectory
+# Настройка графика для анимации траектории
 fig, ax = plt.subplots(figsize=(8, 6))
 ax.axis('equal')
 ax.set_xlim([np.min(x_vals) - 0.8, np.max(x_vals) + 0.8])
 ax.set_ylim([np.min(y_vals) - 0.8, np.max(y_vals) + 0.8])
 
-# Initialize plot elements for the animated trajectory
+# Инициализация элементов графика для анимации траектории
 point, = ax.plot([], [], 'go', markersize=10)
 ax.plot(x_vals, y_vals, 'r-', lw=1)
 velocity_line, = ax.plot([], [], 'b-', lw=1)
@@ -59,10 +59,10 @@ radius_vector_arrow_head, = ax.plot([], [], 'y-', lw=1)
 curvature_radius_line, = ax.plot([], [], 'm--', lw=1)
 curvature_radius_arrow_head, = ax.plot([], [], 'm--', lw=1)
 
-# Set up separate figure for 3 graphs
+# Настройка отдельного графика для 3 функций
 fig2, (ax3, ax4, ax5) = plt.subplots(3, 1, figsize=(10, 12))
 
-# Plot functions of time for position, velocity, and acceleration
+# Построение временных функций для позиции, скорости и ускорения
 x_line, = ax3.plot([], [], label="x(t)", color='r')
 y_line, = ax3.plot([], [], label="y(t)", color='b')
 vx_line, = ax4.plot([], [], label="vx(t)", color='g')
@@ -70,18 +70,18 @@ vy_line, = ax4.plot([], [], label="vy(t)", color='purple')
 ax_line, = ax5.plot([], [], label="ax(t)", color='orange')
 ay_line, = ax5.plot([], [], label="ay(t)", color='pink')
 
-# Labels and legends
-ax3.set_ylabel('Position')
-ax4.set_ylabel('Velocity')
-ax5.set_ylabel('Acceleration')
+# Подписи и легенды
+ax3.set_ylabel('Позиция')
+ax4.set_ylabel('Скорость')
+ax5.set_ylabel('Ускорение')
 
-ax5.set_xlabel('Time (t)')
+ax5.set_xlabel('Время (t)')
 
 ax3.legend()
 ax4.legend()
 ax5.legend()
 
-# Set up appropriate scaling for each plot
+# Установка масштаба для каждого графика
 ax3.set_xlim([0, 10])
 ax3.set_ylim([np.min(x_vals) - 0.8, np.max(x_vals) + 0.8])
 ax4.set_xlim([0, 10])
@@ -90,12 +90,13 @@ ax5.set_xlim([0, 10])
 ax5.set_ylim([np.min(ax_vals) - 0.8, np.max(ax_vals) + 0.8])
 
 def rotate_vectors(x_arr, y_arr, angle):
+    # Поворот векторов на заданный угол
     x_new = x_arr * np.cos(angle) - y_arr * np.sin(angle)
     y_new = x_arr * np.sin(angle) + y_arr * np.cos(angle)
     return x_new, y_new
 
 def update(frame):
-    # Get the current position, velocity, acceleration, and other vectors
+    # Получение текущей позиции, скорости, ускорения и других векторов
     x0 = x_vals[frame]
     y0 = y_vals[frame]
     vx = vx_vals[frame]
@@ -103,10 +104,10 @@ def update(frame):
     ax0 = ax_vals[frame]
     ay0 = ay_vals[frame]
 
-    # Update the position of the moving point
+    # Обновление позиции движущейся точки
     point.set_data([x0], [y0])
 
-    # Update velocity vector
+    # Обновление вектора скорости
     velocity_line.set_data([x0, x0 + vx], [y0, y0 + vy])
     velocity_angle = math.atan2(vy, vx)
     arrow_x = np.array([-0.08, 0, -0.08])
@@ -114,19 +115,19 @@ def update(frame):
     VArrowX, VArrowY = rotate_vectors(arrow_x, arrow_y, velocity_angle)
     velocity_arrow_head.set_data(VArrowX + x0 + vx, VArrowY + y0 + vy)
 
-    # Update acceleration vector
+    # Обновление вектора ускорения
     acceleration_line.set_data([x0, x0 + ax0], [y0, y0 + ay0])
     acceleration_angle = math.atan2(ay0, ax0)
     AArrowX, AArrowY = rotate_vectors(arrow_x, arrow_y, acceleration_angle)
     acceleration_arrow_head.set_data(AArrowX + x0 + ax0, AArrowY + y0 + ay0)
 
-    # Update radius vector
+    # Обновление радиус-вектора
     radius_vector_line.set_data([0, x0], [0, y0])
     radius_angle = math.atan2(y0, x0)
     RArrowX, RArrowY = rotate_vectors(arrow_x, arrow_y, radius_angle)
     radius_vector_arrow_head.set_data(RArrowX + x0, RArrowY + y0)
 
-    # Calculate curvature radius
+    # Вычисление радиуса кривизны
     numerator = (vx**2 + vy**2)**1.5
     denominator = abs(vx * ay0 - vy * ax0)
     if denominator != 0:
@@ -134,7 +135,7 @@ def update(frame):
     else:
         R_curv = np.inf
 
-    # Calculate the center of the curvature
+    # Вычисление центра кривизны
     norm_vx = -vy
     norm_vy = vx
     norm = np.hypot(norm_vx, norm_vy)
@@ -145,13 +146,13 @@ def update(frame):
     center_x = x0 + R_curv * norm_vx
     center_y = y0 + R_curv * norm_vy
 
-    # Update curvature radius vector
+    # Обновление вектора радиуса кривизны
     curvature_radius_line.set_data([x0, center_x], [y0, center_y])
     curvature_angle = math.atan2(center_y - y0, center_x - x0)
     CArrowX, CArrowY = rotate_vectors(arrow_x, arrow_y, curvature_angle)
     curvature_radius_arrow_head.set_data(CArrowX + center_x, CArrowY + center_y)
 
-    # Update time-dependent graphs
+    # Обновление временных графиков
     x_line.set_data(time_points[:frame], x_vals[:frame])
     y_line.set_data(time_points[:frame], y_vals[:frame])
     vx_line.set_data(time_points[:frame], vx_vals[:frame])
@@ -166,9 +167,9 @@ def update(frame):
             curvature_radius_line, curvature_radius_arrow_head,
             x_line, y_line, vx_line, vy_line, ax_line, ay_line)
 
-# Create animation
+# Создание анимации
 ani = animation.FuncAnimation(fig, update, frames=len(time_points), interval=20, blit=True)
 
-# Show the plots
+# Отображение графиков
 plt.tight_layout()
 plt.show()
