@@ -12,9 +12,24 @@ def trapezoid(x0, y0, width=10, height=17.5):
 # Функция для решения уравнений движения
 def equations(t, y, m1, m2, r, g):
     s, s_dot, theta, theta_dot = y
-    s_ddot = -(m2 * r * (theta_dot**2 * np.sin(theta))) / (m1 + m2)
-    theta_ddot = -g * np.sin(theta) / r
+    
+    # Матрица коэффициентов для s_ddot и theta_ddot
+    a11 = m1 + m2
+    a12 = m2 * r * np.cos(theta)
+    a21 = np.cos(theta)
+    a22 = r
+    
+    # Правые части уравнений
+    b1 = m2 * r * theta_dot**2 * np.sin(theta)
+    b2 = -g * np.sin(theta)
+    
+    # Решение системы уравнений
+    det = a11 * a22 - a12 * a21
+    s_ddot = (a22 * b1 - a12 * b2) / det
+    theta_ddot = (-a21 * b1 + a11 * b2) / det
+    
     return [s_dot, s_ddot, theta_dot, theta_ddot]
+
 
 # Ввод параметров
 m1 = float(input("Введите m1: "))
