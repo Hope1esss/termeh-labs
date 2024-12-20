@@ -16,7 +16,7 @@ s = 4 * np.cos(3 * T)
 phi = 4 * np.sin(T - 10)
 
 # Координаты центра
-x_center = s + 0.8
+x_center = s
 y_center = np.ones_like(T) * 7.5
 
 # Радиус точки
