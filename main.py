@@ -20,7 +20,7 @@ x_center = -s
 y_center = np.ones_like(T) * 7.5
 
 # Радиус точки
-radius_length = 5
+radius_length = 3
 x_A = x_center - radius_length * np.sin(phi)
 y_A = y_center + radius_length * np.cos(phi)
 
@@ -36,7 +36,7 @@ trap, = ax.plot(trap_x, trap_y, 'r')  # Трапеция
 radius_line, = ax.plot([x_center[0], x_A[0]], [y_center[0], y_A[0]], 'k')  # Радиус
 theta = np.linspace(0, 2 * np.pi, 100)
 point_circle, = ax.plot([], [], 'bo')  # Точка на радиусе
-orbit_circle, = ax.plot([], [], 'b--')  # Окружность
+orbit_circle, = ax.plot([], [], color="gray", linestyle="--")  # Окружность
 
 # Анимация
 def update(frame):
