@@ -44,6 +44,9 @@ s_dot = solution.y[1]
 theta = solution.y[2]
 theta_dot = solution.y[3]
 
+# Вычисление реакции плоскости
+R = (m1 + m2) * g + m2 * r * (np.cos(theta) * theta_dot**2 + np.sin(theta) * np.gradient(theta_dot, t_eval))
+
 # Координаты центра и точки
 x_center = s + 0.8
 y_center = np.ones_like(t_eval) * 7.5
@@ -60,7 +63,7 @@ ax.set_ylim(y_center.min() - 10, y_center.max() + 10)
 trap_x, trap_y = trapezoid(x_center[0], y_center[0])
 trap, = ax.plot(trap_x, trap_y, 'r')  # Трапеция
 radius_line, = ax.plot([x_center[0], x_A[0]], [y_center[0], y_A[0]], 'k')  # Радиус
-theta_points = np.linspace(0, 2 * np.pi, 50)
+circle, = ax.plot([], [], linestyle='--', color='gray')  # Окружность
 point_circle, = ax.plot([], [], 'b')  # Точка на радиусе
 
 # Анимация
@@ -68,15 +71,17 @@ def update(frame):
     trap_x, trap_y = trapezoid(x_center[frame], y_center[frame])
     trap.set_data(trap_x, trap_y)
     radius_line.set_data([x_center[frame], x_A[frame]], [y_center[frame], y_A[frame]])
-    point_circle.set_data(x_A[frame] + 0.2 * np.cos(theta_points), 
-                          y_A[frame] + 0.2 * np.sin(theta_points))
-    return trap, radius_line, point_circle
+    circle.set_data(x_center[frame] + r * np.cos(np.linspace(0, 2 * np.pi, 100)),
+                    y_center[frame] + r * np.sin(np.linspace(0, 2 * np.pi, 100)))
+    point_circle.set_data(x_A[frame] + 0.2 * np.cos(np.linspace(0, 2 * np.pi, 50)),
+                          y_A[frame] + 0.2 * np.sin(np.linspace(0, 2 * np.pi, 50)))
+    return trap, radius_line, circle, point_circle
 
 # Создаем анимацию
 ani = FuncAnimation(fig, update, frames=len(t_eval), interval=20, blit=True)
 
 # Создание подграфиков для показателей
-fig2, axs = plt.subplots(4, 1, figsize=(10, 10))
+fig2, axs = plt.subplots(3, 1, figsize=(10, 10))
 axs[0].plot(t_eval, s, label='s (перемещение)')
 axs[0].set_title('Перемещение от времени')
 axs[0].set_xlabel('Время (с)')
@@ -84,26 +89,19 @@ axs[0].set_ylabel('s (м)')
 axs[0].grid()
 axs[0].legend()
 
-axs[1].plot(t_eval, s_dot, label='s_dot (скорость)', color='orange')
-axs[1].set_title('Скорость от времени')
+axs[1].plot(t_eval, theta, label='theta (угол)', color='green')
+axs[1].set_title('Угол от времени')
 axs[1].set_xlabel('Время (с)')
-axs[1].set_ylabel('s_dot (м/с)')
+axs[1].set_ylabel('theta (рад)')
 axs[1].grid()
 axs[1].legend()
 
-axs[2].plot(t_eval, theta, label='theta (угол)', color='green')
-axs[2].set_title('Угол от времени')
+axs[2].plot(t_eval, R, label='R (реакция)', color='purple')
+axs[2].set_title('Реакция от времени')
 axs[2].set_xlabel('Время (с)')
-axs[2].set_ylabel('theta (рад)')
+axs[2].set_ylabel('R (Н)')
 axs[2].grid()
 axs[2].legend()
-
-axs[3].plot(t_eval, theta_dot, label='theta_dot (угловая скорость)', color='red')
-axs[3].set_title('Угловая скорость от времени')
-axs[3].set_xlabel('Время (с)')
-axs[3].set_ylabel('theta_dot (рад/с)')
-axs[3].grid()
-axs[3].legend()
 
 plt.tight_layout()
 plt.show()
