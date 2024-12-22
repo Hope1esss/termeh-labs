@@ -27,15 +27,16 @@ y_A = y_center + radius_length * np.cos(phi)
 # Настройка фигуры и осей
 fig, ax = plt.subplots(figsize=(10, 6))
 ax.axis('equal')
-ax.set_xlim(x_center.min() - 5, x_center.max() + 5)
-ax.set_ylim(y_center.min() - 10, y_center.max() + 10)
+ax.set_xlim(x_center.min() - 10, x_center.max() + 10)
+ax.set_ylim(y_center.min() - 15, y_center.max() + 15)
 
 # Отображаемые элементы
 trap_x, trap_y = trapezoid(x_center[0], y_center[0])
 trap, = ax.plot(trap_x, trap_y, 'r')  # Трапеция
 radius_line, = ax.plot([x_center[0], x_A[0]], [y_center[0], y_A[0]], 'k')  # Радиус
-theta = np.linspace(0, 2 * np.pi, 50)
-point_circle, = ax.plot([], [], 'b')  # Точка на радиусе
+theta = np.linspace(0, 2 * np.pi, 100)
+point_circle, = ax.plot([], [], 'bo')  # Точка на радиусе
+orbit_circle, = ax.plot([], [], 'b--')  # Окружность
 
 # Анимация
 def update(frame):
@@ -47,8 +48,14 @@ def update(frame):
     radius_line.set_data([x_center[frame], x_A[frame]], [y_center[frame], y_A[frame]])
     
     # Обновляем точку на радиусе
-    point_circle.set_data(x_A[frame] + 0.2 * np.cos(theta), y_A[frame] + 0.2 * np.sin(theta))
-    return trap, radius_line, point_circle
+    point_circle.set_data([x_A[frame]], [y_A[frame]])
+    
+    # Обновляем окружность
+    orbit_x = x_center[frame] + radius_length * np.cos(theta)
+    orbit_y = y_center[frame] + radius_length * np.sin(theta)
+    orbit_circle.set_data(orbit_x, orbit_y)
+    
+    return trap, radius_line, point_circle, orbit_circle
 
 # Создаем анимацию
 ani = FuncAnimation(fig, update, frames=len(T), interval=20, blit=True)
